@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <title>RESTful Web Services Demo</title>
+    <style>
+      #lblResults {
+        font-weight: bold;
+        font-size: 1.4rem;
+      }
+    </style>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(() => {
+        const $lblResults = $('#lblResults');
+        const $buttons    = $(':input[type="button"]');
+        
+        const showUserMessage = (msg, disableButtons) => {
+          $('.container').get(0).scrollIntoView(200);
+          $lblResults.text(msg);
+          setTimeout(() => $lblResults.text(''), 5000);
+          $buttons.prop('disabled', disableButtons);
+        };
+
+        $('#getterLinks a').click(evt => {
+          evt.preventDefault();
+          const link = evt.target.href;
+          // clear the form
+          $("#vehicleForm :input").val("");
+          $.getJSON(link, (data) => {
+            $("#vehicleForm :input").each((index, elm) => {
+              const $elm = $(elm);
+              $elm.val(data[$elm.attr('name')]);
+            });
+            showUserMessage("", false);
+          }).fail((response, textStatus, xhr) => {
+            showUserMessage("Couldn't load vehicle!", true);
+          });
+        });
+
+        $("#btnUpdate").click((evt) => {
+          const form = evt.target.form;
+          const id   = $("#vehicleForm input[name=id]").val();
+          $.ajax({
+            url: `${form.action}/${id}`,
+            type: "POST",
+            data: $(form).serialize(),
+            success: (data, textStatus, xhr) => {
+              showUserMessage('Vehicle successfully updated.', false);
+            },
+            error: (xhr, textStatus, errorThrown) => {
+              showUserMessage(xhr.responseText, true);
+            }
+          });
+        });
+
+        $("#btnDelete").click((evt) => {
+          const form = evt.target.form;
+          const id   = $("#vehicleForm input[name=id]").val();
+          $.ajax({
+            url: `${form.action}/${id}`,
+            type: "DELETE",
+            success: (data, textStatus, xhr) => {
+              showUserMessage(xhr.responseText, true);
+              // clear the form
+              $("#vehicleForm :input").val("");
+            },
+            error: (xhr, textStatus, errorThrown) => {
+              showUserMessage(xhr.responseText, true);
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <div class="container">
+      <h1>RESTful Web Services</h1>
+      <h2>Consuming RESTful Web Services Demo</h2>
+      <label id="lblResults"></label>
+
+      <ul id="getterLinks" style="list-style-type: none; padding: 0; margin: 0;">
+        <li><a href="https://5t6ml.sse.codesandbox.io/vehicles/1">Get 1st Vehicle Data</a></li>
+        <li><a href="https://5t6ml.sse.codesandbox.io/vehicles/2">Get 2nd Vehicle Data</a></li>
+        <li><a href="https://5t6ml.sse.codesandbox.io/vehicles/3">Get 3rd Vehicle Data</a></li>
+        <li><a href="https://5t6ml.sse.codesandbox.io/vehicles/bad">Get Bad Vehicle Data (Fail Test)</a></li>
+      </ul>
+      <br />
+
+      <form id="vehicleForm" action="https://5t6ml.sse.codesandbox.io/vehicles">
+        <div class="form-group">
+          <label for="id">ID</label>
+          <input class="form-control" name="id" />
+        </div>
+
+        <div class="form-group">
+          <label for="make">Make</label>
+          <input class="form-control" name="make" />
+        </div>
+
+        <div class="form-group">
+          <label for="model">Model</label>
+          <input class="form-control" name="model" />
+        </div>
+
+        <div class="form-group">
+          <label for="year">Year</label>
+          <input class="form-control" name="year" />
+        </div>
+
+        <div class="form-group">
+          <label for="color">Color</label>
+          <input class="form-control" name="color" />
+        </div>
+
+        <div class="form-group">
+          <label for="plateNumber">Plate Number</label>
+          <input
+            class="form-control"
+            name="plateNumber"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="vin">VIN Number</label>
+          <input
+            class="form-control"
+            name="vin"
+          />
+        </div>
+
+        <!--Other fields-->
+        <button id="btnUpdate" type="button" class="btn btn-primary" disabled>Update</button>
+        &nbsp;&nbsp;
+        <button id="btnDelete" type="button" class="btn btn-primary" disabled>Delete</button>
+      </form>
+
+      <br />
+      <br />
+      </form>
+
+      <br />
+      <br />
+    </div>
+  </body>
+</html>
